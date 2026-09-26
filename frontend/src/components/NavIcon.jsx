@@ -77,6 +77,12 @@ const icons = {
       strokeLinejoin="round"
     />
   ),
+  forecast: (
+    <>
+      <path d="M4 18 9 13l3 3 7-9" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 7h5v5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
   globe: (
     <>
       <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />

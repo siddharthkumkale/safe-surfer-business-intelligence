@@ -1,0 +1,28 @@
+services:
+  - type: web
+    runtime: python
+    name: safe-surfer-api
+    region: singapore
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+
+  - type: web
+    runtime: static
+    name: safe-surfer-dashboard
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    autoDeployTrigger: commit
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: safe-surfer-api
+          envVarKey: RENDER_EXTERNAL_URL

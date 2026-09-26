@@ -1,11 +1,12 @@
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.ingestion.excel_dashboard_reader import (
     ExcelDashboardReader,
 )
+from backend.forecasting import ForecastingService
 
 
 # =========================================================
@@ -57,6 +58,8 @@ INTERNATIONAL_FILE = (
     PROJECT_ROOT
     / "FF - International - Final Dashboard tables.xlsx"
 )
+
+forecasting_service = ForecastingService(PROJECT_ROOT)
 
 # =========================================================
 # HEALTH CHECK
@@ -160,3 +163,30 @@ def dashboard():
                 international,
         },
     }
+
+
+@app.get("/api/forecast/metrics")
+def forecast_metrics():
+    try:
+        return forecasting_service.metrics_catalog()
+    except (FileNotFoundError, RuntimeError) as error:
+        raise HTTPException(status_code=500, detail=str(error)) from error
+
+
+@app.get("/api/forecast")
+def forecast(
+    metric: str = Query(..., min_length=1),
+    horizon: int = Query(3),
+):
+    try:
+        result = forecasting_service.forecast(metric, horizon)
+    except KeyError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    except (FileNotFoundError, RuntimeError) as error:
+        raise HTTPException(status_code=500, detail=str(error)) from error
+
+    if not result.get("success"):
+        return result
+    return result

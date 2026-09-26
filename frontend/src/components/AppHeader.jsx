@@ -16,8 +16,7 @@ export default function AppHeader({ refreshing, onRefresh, activeTab, onTabChang
             <option value="active-subs">Active subscriptions</option>
             <option value="trialists">Trialist conversion</option>
             <option value="analysis">Customer analysis</option>
-            <option value="revenue">Revenue</option>
-            <option value="mrr">Monthly recurring revenue</option>
+            <option value="forecasting">Financial forecasting</option>
             <option value="international">International</option>
           </select>
         </label>

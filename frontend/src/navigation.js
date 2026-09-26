@@ -12,8 +12,7 @@ export const NAV_SECTIONS = [
   {
     title: "Financial",
     items: [
-      { id: "revenue", label: "Revenue", icon: "dollar" },
-      { id: "mrr", label: "MRR", icon: "trend" },
+      { id: "forecasting", label: "Forecasting", icon: "forecast" },
       { id: "international", label: "International", icon: "globe" },
     ],
   },
@@ -47,6 +46,10 @@ export const PAGE_META = {
   mrr: {
     title: "MRR",
     subtitle: "Monthly recurring revenue analysis",
+  },
+  forecasting: {
+    title: "Financial Forecasting",
+    subtitle: "Forward-looking analysis generated from historical Safe Surfer business data",
   },
   international: {
     title: "International",
