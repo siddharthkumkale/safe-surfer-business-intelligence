@@ -7,10 +7,6 @@ from typing import Callable
 
 import numpy as np
 import pandas as pd
-from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.holtwinters import ExponentialSmoothing, Holt, SimpleExpSmoothing
-
-
 class ForecastModelError(RuntimeError):
     pass
 
@@ -55,16 +51,22 @@ def _seasonal_naive(values: np.ndarray, horizon: int) -> np.ndarray:
 
 
 def _ses(values: np.ndarray, horizon: int) -> np.ndarray:
+    from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+
     fit = SimpleExpSmoothing(values, initialization_method="estimated").fit(optimized=True)
     return np.asarray(fit.forecast(horizon), dtype=float)
 
 
 def _holt(values: np.ndarray, horizon: int, damped: bool) -> np.ndarray:
+    from statsmodels.tsa.holtwinters import Holt
+
     fit = Holt(values, damped_trend=damped, initialization_method="estimated").fit(optimized=True)
     return np.asarray(fit.forecast(horizon), dtype=float)
 
 
 def _ets_additive(values: np.ndarray, horizon: int) -> np.ndarray:
+    from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
     fit = ExponentialSmoothing(
         values,
         trend="add",
@@ -76,6 +78,8 @@ def _ets_additive(values: np.ndarray, horizon: int) -> np.ndarray:
 
 
 def _holt_winters(values: np.ndarray, horizon: int) -> np.ndarray:
+    from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
     if len(values) < 24:
         raise ValueError("Holt-Winters requires at least 24 monthly observations.")
     fit = ExponentialSmoothing(
@@ -89,6 +93,8 @@ def _holt_winters(values: np.ndarray, horizon: int) -> np.ndarray:
 
 
 def _arima(values: np.ndarray, horizon: int, order: tuple[int, int, int]) -> np.ndarray:
+    from statsmodels.tsa.arima.model import ARIMA
+
     fit = ARIMA(
         values,
         order=order,

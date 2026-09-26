@@ -6,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.ingestion.excel_dashboard_reader import (
     ExcelDashboardReader,
 )
-from backend.forecasting import ForecastingService
 
 
 # =========================================================
@@ -59,7 +58,18 @@ INTERNATIONAL_FILE = (
     / "FF - International - Final Dashboard tables.xlsx"
 )
 
-forecasting_service = ForecastingService(PROJECT_ROOT)
+def get_forecasting_service():
+    """Import the forecasting stack only when a forecast endpoint is used.
+
+    pandas, SciPy, and statsmodels are intentionally kept out of the normal
+    dashboard startup path. This keeps the Render free instance comfortably
+    below its 512 MB memory ceiling while preserving the forecasting feature.
+    """
+    from backend.forecasting import ForecastingService
+
+    if not hasattr(get_forecasting_service, "instance"):
+        get_forecasting_service.instance = ForecastingService(PROJECT_ROOT)
+    return get_forecasting_service.instance
 
 # =========================================================
 # HEALTH CHECK
@@ -168,7 +178,7 @@ def dashboard():
 @app.get("/api/forecast/metrics")
 def forecast_metrics():
     try:
-        return forecasting_service.metrics_catalog()
+        return get_forecasting_service().metrics_catalog()
     except (FileNotFoundError, RuntimeError) as error:
         raise HTTPException(status_code=500, detail=str(error)) from error
 
@@ -179,7 +189,7 @@ def forecast(
     horizon: int = Query(3),
 ):
     try:
-        result = forecasting_service.forecast(metric, horizon)
+        result = get_forecasting_service().forecast(metric, horizon)
     except KeyError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
     except ValueError as error:

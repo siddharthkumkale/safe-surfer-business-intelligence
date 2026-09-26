@@ -5,7 +5,6 @@ import logging
 from pathlib import Path
 from threading import RLock
 
-import numpy as np
 import pandas as pd
 
 from .data_loader import ForecastDataLoader, MetricSeries
