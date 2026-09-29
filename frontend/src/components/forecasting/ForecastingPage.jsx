@@ -221,10 +221,10 @@ export default function ForecastingPage() {
         <div className="forecast-command-copy">
           <div className="forecast-eyebrow">
             <span>Experimental</span>
-            Model-selected outlook
+            Forecast outlook
           </div>
-          <h3>Forward-looking business analysis</h3>
-          <p>Generated from historical Safe Surfer data using rolling backtests and metric-specific model selection.</p>
+          <h3>Business forecast</h3>
+          <p>Select a metric and forecast period.</p>
         </div>
         <div className="forecast-controls">
           <label>
@@ -268,7 +268,7 @@ export default function ForecastingPage() {
         <div className="forecast-loading panel">
           <div className="spinner" />
           <h3>Evaluating forecast models</h3>
-          <p>Running rolling backtests and selecting the strongest candidate for this metric.</p>
+          <p>Comparing models against recent historical results.</p>
         </div>
       )}
 
@@ -309,7 +309,7 @@ export default function ForecastingPage() {
             <div className="section-heading forecast-section-heading">
               <div>
                 <h3>Actual vs Forecast</h3>
-                <p>Solid history, dashed forecast, and an estimated uncertainty range.</p>
+                <p>Historical results and the selected forecast.</p>
               </div>
               <div className="forecast-model-pill">
                 <span>Selected model</span>
@@ -349,7 +349,7 @@ export default function ForecastingPage() {
           <section className="section">
             <div className="section-heading">
               <h3>Forecast Details</h3>
-              <p>Monthly point estimates and estimated forecast ranges.</p>
+              <p>Monthly estimates with lower and upper ranges.</p>
             </div>
             <div className="panel table-panel">
               <div className="table-scroll">
@@ -385,7 +385,7 @@ export default function ForecastingPage() {
             <div className="panel forecast-model-card">
               <div className="section-heading">
                 <h3>Model Performance</h3>
-                <p>Best-performing candidate for this metric based on historical backtesting.</p>
+                <p>Accuracy of the selected model on recent historical data.</p>
               </div>
               <div className="model-stat-grid">
                 <div><span>Selected model</span><strong>{result.selected_model.name}</strong></div>
@@ -415,7 +415,7 @@ export default function ForecastingPage() {
           <section className="section">
             <div className="section-heading">
               <h3>Model Backtest</h3>
-              <p>One-step-ahead predictions from rolling-origin validation; no random train/test split.</p>
+              <p>Predictions compared with known historical results.</p>
             </div>
             <div className="panel chart-panel large-chart">
               <ResponsiveContainer width="100%" height={360}>
@@ -436,7 +436,7 @@ export default function ForecastingPage() {
             <section className="section">
               <div className="section-heading">
                 <h3>Historical Source Contribution</h3>
-                <p>Actual monthly composition only; these bars do not represent source-level forecasts.</p>
+                <p>Monthly contribution by source.</p>
               </div>
               <div className="panel chart-panel large-chart">
                 <ResponsiveContainer width="100%" height={400}>
@@ -483,7 +483,7 @@ export default function ForecastingPage() {
 
           <section className="section">
             <details className="panel forecast-audit-details">
-              <summary>Model audit and rejected candidates</summary>
+              <summary>All models tested</summary>
               <div className="table-scroll">
                 <table>
                   <thead><tr><th>Candidate</th><th>Status</th><th>MAE</th><th>RMSE</th><th>sMAPE</th><th>Reason</th></tr></thead>

@@ -7,18 +7,14 @@ from openpyxl import load_workbook
 
 
 class ExcelDashboardReader:
+    """Read the fixed workbook layouts used by the dashboard."""
 
     NS = {
         "main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
         "rel": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
     }
 
-    # =========================================================
-    # PAGE 1 - TEMPLATE ROWS
-    # =========================================================
-
     ROW_MAPPING = {
-        # ACTIVE CUSTOMER DETAILS
         22003: "ios_old",
         22004: "ios_new",
 
@@ -39,8 +35,6 @@ class ExcelDashboardReader:
 
         22021: "invoice_account_1",
         22022: "invoice_account_2",
-
-        # SUMMARY
         22026: "cb_old",
         22027: "cb_new",
         22028: "cb_total",
@@ -48,10 +42,6 @@ class ExcelDashboardReader:
         22030: "invoices",
         22031: "total_subscriptions",
     }
-
-    # =========================================================
-    # PAGE 1 - TEMPLATE COLUMNS
-    # =========================================================
 
     COLUMN_MAPPING = {
         "G": "monthly",
@@ -62,10 +52,6 @@ class ExcelDashboardReader:
         "L": "nz_annual",
         "M": "os_annual",
     }
-
-    # =========================================================
-    # PAGE 1 - ACTIVE CUSTOMER DISPLAY INFO
-    # =========================================================
 
     ACTIVE_DETAILS = {
         "ios_old": {
@@ -139,10 +125,6 @@ class ExcelDashboardReader:
         },
     }
 
-    # =========================================================
-    # PAGE 1 - SUMMARY DISPLAY INFO
-    # =========================================================
-
     SUMMARY_DETAILS = {
         "cb_old": {
             "name": "CB OLD",
@@ -169,11 +151,7 @@ class ExcelDashboardReader:
         },
     }
 
-    # =========================================================
-    # INITIALISE
-    # =========================================================
-
-    def __init__(self, file_path):
+    def __init__(self, file_path: str | Path):
 
         self.file_path = Path(file_path)
 
@@ -182,9 +160,17 @@ class ExcelDashboardReader:
                 f"Excel file not found: {self.file_path}"
             )
 
-    # =========================================================
-    # FIND SHEET
-    # =========================================================
+    def read_active_subscriptions(self):
+        """Return the monthly active-subscription dataset."""
+        return self._read_active_subs_sheet()
+
+    def read_trialists(self):
+        """Return trialist totals, conversions, and source breakdowns."""
+        return self._read_trialists_sheet()
+
+    def read_international(self):
+        """Return international income and country-level summaries."""
+        return self._read_international_workbook()
 
     def _find_sheet(self, xlsx, sheet_name):
 
@@ -240,22 +226,12 @@ class ExcelDashboardReader:
         raise RuntimeError(
             f"Sheet '{sheet_name}' not found."
         )
-
-    # =========================================================
-    # PAGE 1 - FIND TEMPLATE
-    # =========================================================
-
     def _find_template_sheet(self, xlsx):
 
         return self._find_sheet(
             xlsx,
             "Template",
         )
-
-    # =========================================================
-    # PAGE 1 - READ TEMPLATE ROWS
-    # =========================================================
-
     def _read_template_rows(self):
 
         with ZipFile(
@@ -355,11 +331,6 @@ class ExcelDashboardReader:
                 ] = row_data
 
             return rows
-
-    # =========================================================
-    # PAGE 1 - EMPTY ROW
-    # =========================================================
-
     def _empty_row(self):
 
         return {
@@ -367,31 +338,8 @@ class ExcelDashboardReader:
             for field
             in self.COLUMN_MAPPING.values()
         }
-
-    # =========================================================
-    # PAGE 2 - ACTIVE SUBSCRIPTIONS
-    # =========================================================
-    #
-    # Workbook:
-    # Active Subs & Graphics.xlsx
-    #
-    # Sheet:
-    # ACTIVE SUBS
-    #
-    # Actual workbook columns:
-    #
-    # B = Year
-    # C = Month
-    # D = Active
-    # N = Non-renewing
-    # V = Balance Month
-    # W = Balance VALUE
-    #
-    # Data begins at row 7.
-    #
-    # =========================================================
-
     def _read_active_subs_sheet(self):
+        """Read monthly subscription data from the ACTIVE SUBS sheet."""
 
         workbook = load_workbook(
             filename=self.file_path,
@@ -414,11 +362,6 @@ class ExcelDashboardReader:
             active_subs = []
 
             current_year = None
-
-            # -------------------------------------------------
-            # NUMBER CONVERTER
-            # -------------------------------------------------
-
             def to_number(value):
 
                 if value is None:
@@ -434,20 +377,10 @@ class ExcelDashboardReader:
                     ValueError,
                 ):
                     return 0
-
-            # -------------------------------------------------
-            # READ MONTHLY DATA
-            # -------------------------------------------------
-
             for row_number in range(
                 7,
                 sheet.max_row + 1,
             ):
-
-                # ---------------------------------------------
-                # READ ACTUAL EXCEL CELLS
-                # ---------------------------------------------
-
                 year_value = sheet[
                     f"B{row_number}"
                 ].value
@@ -464,29 +397,16 @@ class ExcelDashboardReader:
                     f"N{row_number}"
                 ].value
 
-                # IMPORTANT:
-                # W contains the actual Balance number.
                 balance_value = sheet[
                     f"W{row_number}"
                 ].value
-
-                # ---------------------------------------------
-                # MONTH
-                # ---------------------------------------------
-
                 month = str(
                     month_value or ""
                 ).strip()
 
-                # Ignore rows that do not contain
-                # a month.
+                # Rows without a month are headings or spacing rows.
                 if not month:
                     continue
-
-                # ---------------------------------------------
-                # YEAR
-                # ---------------------------------------------
-
                 if year_value is not None:
 
                     try:
@@ -501,11 +421,6 @@ class ExcelDashboardReader:
                         ValueError,
                     ):
                         pass
-
-                # ---------------------------------------------
-                # VALUES
-                # ---------------------------------------------
-
                 active = to_number(
                     active_value
                 )
@@ -514,15 +429,9 @@ class ExcelDashboardReader:
                     non_renewing_value
                 )
 
-                # Read Balance DIRECTLY from Excel column W.
                 balance = to_number(
                     balance_value
                 )
-
-                # ---------------------------------------------
-                # LABEL
-                # ---------------------------------------------
-
                 if current_year is not None:
 
                     label = (
@@ -533,11 +442,6 @@ class ExcelDashboardReader:
                 else:
 
                     label = month.title()
-
-                # ---------------------------------------------
-                # ADD RECORD
-                # ---------------------------------------------
-
                 active_subs.append(
                     {
                         "row": row_number,
@@ -555,36 +459,8 @@ class ExcelDashboardReader:
         finally:
 
             workbook.close()
-        # =========================================================
-    # PAGE 3 - TRIALISTS
-    # =========================================================
-    #
-    # Workbook:
-    # Trialists Graphics.xlsx
-    #
-    # Sheet:
-    # TRIALISTS
-    #
-    # Main source table:
-    #
-    # I = Year
-    # J = Month
-    # K = Source
-    # L = Total Trialists
-    # M = Converted This Month
-    # N = Converted Next Month 1-7 Days
-    # O = No / Not Converted
-    #
-    # Data begins at row 13.
-    #
-    # Each month contains:
-    # CB iOS
-    # CB Web
-    # Google
-    #
-    # =========================================================
-
     def _read_trialists_sheet(self):
+        """Read monthly trialist conversion data grouped by acquisition source."""
 
         workbook = load_workbook(
             filename=self.file_path,
@@ -601,11 +477,6 @@ class ExcelDashboardReader:
                 )
 
             sheet = workbook["TRIALISTS"]
-
-            # -------------------------------------------------
-            # NUMBER CONVERTER
-            # -------------------------------------------------
-
             def to_number(value):
 
                 if value is None:
@@ -626,11 +497,6 @@ class ExcelDashboardReader:
 
             current_year = None
             current_month = None
-
-            # -------------------------------------------------
-            # READ SOURCE-LEVEL DATA
-            # -------------------------------------------------
-
             for row_number in range(
                 13,
                 sheet.max_row + 1,
@@ -663,11 +529,6 @@ class ExcelDashboardReader:
                 no_value = sheet[
                     f"O{row_number}"
                 ].value
-
-                # ---------------------------------------------
-                # SOURCE
-                # ---------------------------------------------
-
                 source = str(
                     source_value or ""
                 ).strip()
@@ -679,11 +540,6 @@ class ExcelDashboardReader:
                     "Google",
                 }:
                     continue
-
-                # ---------------------------------------------
-                # YEAR
-                # ---------------------------------------------
-
                 if year_value is not None:
 
                     try:
@@ -696,11 +552,6 @@ class ExcelDashboardReader:
                         ValueError,
                     ):
                         pass
-
-                # ---------------------------------------------
-                # MONTH
-                # ---------------------------------------------
-
                 if month_value is not None:
 
                     month_text = str(
@@ -709,11 +560,6 @@ class ExcelDashboardReader:
 
                     if month_text:
                         current_month = month_text
-
-                # ---------------------------------------------
-                # VALUES
-                # ---------------------------------------------
-
                 total = to_number(
                     total_value
                 )
@@ -729,20 +575,10 @@ class ExcelDashboardReader:
                 no_response = to_number(
                     no_value
                 )
-
-                # ---------------------------------------------
-                # CONVERTED
-                # ---------------------------------------------
-
                 converted = (
                     this_month
                     + next_7_days
                 )
-
-                # ---------------------------------------------
-                # CONVERSION RATE
-                # ---------------------------------------------
-
                 if total > 0:
 
                     conversion_rate = round(
@@ -756,11 +592,6 @@ class ExcelDashboardReader:
                 else:
 
                     conversion_rate = 0
-
-                # ---------------------------------------------
-                # LABEL
-                # ---------------------------------------------
-
                 if (
                     current_month
                     and current_year
@@ -780,11 +611,6 @@ class ExcelDashboardReader:
                 else:
 
                     label = ""
-
-                # ---------------------------------------------
-                # ADD DETAIL RECORD
-                # ---------------------------------------------
-
                 details.append(
                     {
                         "row": row_number,
@@ -801,11 +627,6 @@ class ExcelDashboardReader:
                             conversion_rate,
                     }
                 )
-
-            # =================================================
-            # BUILD MONTHLY SUMMARY
-            # =================================================
-
             monthly_map = {}
 
             for item in details:
@@ -876,11 +697,6 @@ class ExcelDashboardReader:
             monthly = list(
                 monthly_map.values()
             )
-
-            # -------------------------------------------------
-            # MONTHLY CONVERSION RATE
-            # -------------------------------------------------
-
             for item in monthly:
 
                 if item["total"] > 0:
@@ -900,11 +716,6 @@ class ExcelDashboardReader:
                     item[
                         "conversion_rate"
                     ] = 0
-
-            # =================================================
-            # SOURCE SUMMARY
-            # =================================================
-
             source_map = {}
 
             for item in details:
@@ -988,21 +799,11 @@ class ExcelDashboardReader:
                     item[
                         "conversion_rate"
                     ] = 0
-
-            # =================================================
-            # LATEST MONTH
-            # =================================================
-
             latest = (
                 monthly[-1]
                 if monthly
                 else None
             )
-
-            # =================================================
-            # RETURN PAGE 3 DATA
-            # =================================================
-
             return {
                 "details": details,
                 "monthly": monthly,
@@ -1013,43 +814,6 @@ class ExcelDashboardReader:
         finally:
 
             workbook.close()
-
-    # =========================================================
-    # INTERNATIONAL — FF INTERNATIONAL WORKBOOK
-    # =========================================================
-    #
-    # Workbook:
-    # FF - International - Final Dashboard tables.xlsx
-    #
-    # Sheet: Income Source $
-    #
-    # B = Month
-    # C = Country
-    # D = Licencing
-    # E = Marketing Support
-    # F = Other
-    # G = Product Sales
-    # H = Shipping
-    # I = Apple
-    # J = Google
-    # K = Website (Stripe)
-    # L = Invoices
-    # M = Resellers
-    # N = Total
-    #
-    # Headings on Excel row 4. Data begins at row 6.
-    #
-    # Sheet: Top Countries $
-    #
-    # A = Month
-    # B = Order
-    # C = Country
-    # D = Total
-    #
-    # Headings on Excel row 6. Data begins at row 8.
-    #
-    # =========================================================
-
     INCOME_SOURCE_COLUMNS = {
         "D": "licensing",
         "E": "marketing_support",
@@ -1083,6 +847,7 @@ class ExcelDashboardReader:
             return str(month_value).strip()
 
     def _read_international_workbook(self):
+        """Read international income-source and top-country tables."""
 
         workbook = load_workbook(
             filename=self.file_path,
@@ -1118,11 +883,6 @@ class ExcelDashboardReader:
                     ValueError,
                 ):
                     return 0
-
-            # -------------------------------------------------
-            # INCOME SOURCE $
-            # -------------------------------------------------
-
             income_monthly = []
 
             for row_number in range(
@@ -1201,11 +961,6 @@ class ExcelDashboardReader:
                 if income_monthly
                 else None
             )
-
-            # -------------------------------------------------
-            # TOP COUNTRIES $
-            # -------------------------------------------------
-
             country_details = []
 
             for row_number in range(
@@ -1397,21 +1152,12 @@ class ExcelDashboardReader:
         finally:
 
             workbook.close()
-
-    # =========================================================
-    # PAGE 1 - READ DASHBOARD
-    # =========================================================
-
     def read_dashboard(self):
+        """Return active-customer detail and summary values for the dashboard."""
 
         rows = self._read_template_rows()
 
         dashboard = {}
-
-        # =====================================================
-        # ACTIVE CUSTOMER DETAILS
-        # =====================================================
-
         active = []
 
         for (
@@ -1469,11 +1215,6 @@ class ExcelDashboardReader:
         dashboard[
             "active_details"
         ] = active
-
-        # =====================================================
-        # SUMMARY
-        # =====================================================
-
         summary = {}
 
         for (
@@ -1525,15 +1266,7 @@ class ExcelDashboardReader:
         dashboard[
             "summary"
         ] = summary
-
-        # =====================================================
-        # BACKWARD COMPATIBILITY
-        # =====================================================
-        #
-        # Keeps your existing Page 1 React dashboard working.
-        #
-        # =====================================================
-
+        # Keep summary keys at the top level for existing frontend consumers.
         for name in self.SUMMARY_DETAILS:
 
             dashboard[
@@ -1543,218 +1276,3 @@ class ExcelDashboardReader:
             ]
 
         return dashboard
-
-
-# =============================================================
-# LOCAL TEST
-# =============================================================
-
-if __name__ == "__main__":
-
-    project_root = (
-        Path(__file__).resolve().parents[2]
-    )
-
-    # =========================================================
-    # PAGE 1 TEST
-    # =========================================================
-
-    customer_file = (
-        project_root
-        / "Active Customer #.xlsx"
-    )
-
-    customer_reader = (
-        ExcelDashboardReader(
-            customer_file
-        )
-    )
-
-    customer_dashboard = (
-        customer_reader.read_dashboard()
-    )
-
-    print(
-        "\n===================================="
-    )
-
-    print(
-        "ACTIVE CUSTOMER DETAILS"
-    )
-
-    print(
-        "===================================="
-    )
-
-    for item in customer_dashboard[
-        "active_details"
-    ]:
-
-        print(
-            f'\nRow {item["row"]} | '
-            f'{item["active"]} | '
-            f'{item["status"]}'
-        )
-
-        print(
-            f'  Monthly:      '
-            f'{item["monthly"]}'
-        )
-
-        print(
-            f'  Annual:       '
-            f'{item["annual"]}'
-        )
-
-        print(
-            f'  Total:        '
-            f'{item["total"]}'
-        )
-
-        print(
-            f'  NZ Monthly:   '
-            f'{item["nz_monthly"]}'
-        )
-
-        print(
-            f'  OS Monthly:   '
-            f'{item["os_monthly"]}'
-        )
-
-        print(
-            f'  NZ Annual:    '
-            f'{item["nz_annual"]}'
-        )
-
-        print(
-            f'  OS Annual:    '
-            f'{item["os_annual"]}'
-        )
-
-    # =========================================================
-    # PAGE 1 SUMMARY
-    # =========================================================
-
-    print(
-        "\n===================================="
-    )
-
-    print(
-        "SUMMARY"
-    )
-
-    print(
-        "===================================="
-    )
-
-    for (
-        name,
-        values,
-    ) in customer_dashboard[
-        "summary"
-    ].items():
-
-        print(
-            f'\n{values["name"]}'
-        )
-
-        print(
-            f'  Monthly:      '
-            f'{values["monthly"]}'
-        )
-
-        print(
-            f'  Annual:       '
-            f'{values["annual"]}'
-        )
-
-        print(
-            f'  Total:        '
-            f'{values["total"]}'
-        )
-
-        print(
-            f'  NZ Monthly:   '
-            f'{values["nz_monthly"]}'
-        )
-
-        print(
-            f'  OS Monthly:   '
-            f'{values["os_monthly"]}'
-        )
-
-        print(
-            f'  NZ Annual:    '
-            f'{values["nz_annual"]}'
-        )
-
-        print(
-            f'  OS Annual:    '
-            f'{values["os_annual"]}'
-        )
-
-    # =========================================================
-    # PAGE 2 TEST
-    # =========================================================
-
-    active_subs_file = (
-        project_root
-        / "Active Subs & Graphics.xlsx"
-    )
-
-    active_subs_reader = (
-        ExcelDashboardReader(
-            active_subs_file
-        )
-    )
-
-    active_subs = (
-        active_subs_reader
-        ._read_active_subs_sheet()
-    )
-
-    print(
-        "\n===================================="
-    )
-
-    print(
-        "ACTIVE SUBS"
-    )
-
-    print(
-        "===================================="
-    )
-
-    for item in active_subs:
-
-        print(
-            f'\nRow {item["row"]} | '
-            f'{item["label"]}'
-        )
-
-        print(
-            f'  Active:        '
-            f'{item["active"]}'
-        )
-
-        print(
-            f'  Non-renewing:  '
-            f'{item["non_renewing"]}'
-        )
-
-        print(
-            f'  Balance:       '
-            f'{item["balance"]}'
-        )
-
-    print(
-        "\n===================================="
-    )
-
-    print(
-        "FINISHED"
-    )
-
-    print(
-        "===================================="
-    )

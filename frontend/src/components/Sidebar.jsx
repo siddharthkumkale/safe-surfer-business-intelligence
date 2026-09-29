@@ -67,7 +67,7 @@ export default function Sidebar({ activeTab, onTabChange }) {
           <div className="status-dot" />
           <div>
             <strong>Data connected</strong>
-            <span>Excel source is online</span>
+            <span>Excel sources loaded</span>
           </div>
         </div>
       </div>

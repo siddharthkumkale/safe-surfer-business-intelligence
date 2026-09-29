@@ -3,60 +3,25 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.ingestion.excel_dashboard_reader import (
-    ExcelDashboardReader,
-)
+from backend.ingestion.excel_dashboard_reader import ExcelDashboardReader
 
 
-# =========================================================
-# APP
-# =========================================================
-
-app = FastAPI(
-    title="Safe Surfer Financial Dashboard"
-)
-
-
-# =========================================================
-# CORS
-# =========================================================
+app = FastAPI(title="Safe Surfer Business Intelligence API")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# =========================================================
-# PROJECT FILES
-# =========================================================
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+ACTIVE_CUSTOMER_FILE = PROJECT_ROOT / "Active Customer #.xlsx"
+ACTIVE_SUBS_FILE = PROJECT_ROOT / "Active Subs & Graphics.xlsx"
+TRIALISTS_FILE = PROJECT_ROOT / "Trialists Graphics.xlsx"
+INTERNATIONAL_FILE = PROJECT_ROOT / "FF - International - Final Dashboard tables.xlsx"
 
-
-# PAGE 1
-ACTIVE_CUSTOMER_FILE = (
-    PROJECT_ROOT / "Active Customer #.xlsx"
-)
-
-
-# PAGE 2
-ACTIVE_SUBS_FILE = (
-    PROJECT_ROOT / "Active Subs & Graphics.xlsx"
-)
-
-TRIALISTS_FILE = (
-    PROJECT_ROOT
-    / "Trialists Graphics.xlsx"
-)
-
-INTERNATIONAL_FILE = (
-    PROJECT_ROOT
-    / "FF - International - Final Dashboard tables.xlsx"
-)
 
 def get_forecasting_service():
     """Import the forecasting stack only when a forecast endpoint is used.
@@ -71,106 +36,35 @@ def get_forecasting_service():
         get_forecasting_service.instance = ForecastingService(PROJECT_ROOT)
     return get_forecasting_service.instance
 
-# =========================================================
-# HEALTH CHECK
-# =========================================================
 
 @app.get("/api/health")
 def health():
-
     return {
         "success": True,
-        "message": (
-            "Safe Surfer dashboard backend is running"
-        ),
+        "message": "Safe Surfer dashboard API is running",
     }
 
 
-# =========================================================
-# MAIN DASHBOARD API
-# =========================================================
-
 @app.get("/api/dashboard")
 def dashboard():
-
-    # -----------------------------------------------------
-    # PAGE 1
-    # Active Customer workbook
-    # -----------------------------------------------------
-
-    customer_reader = ExcelDashboardReader(
-        ACTIVE_CUSTOMER_FILE
-    )
-
-    customer_dashboard = (
-        customer_reader.read_dashboard()
-    )
-
-
-    # -----------------------------------------------------
-    # PAGE 2
-    # Active Subs & Graphics workbook
-    # -----------------------------------------------------
-
-    active_subs_reader = ExcelDashboardReader(
-        ACTIVE_SUBS_FILE
-    )
-
-    active_subs = (
-        active_subs_reader._read_active_subs_sheet()
-    )
-
-    trialists_reader = ExcelDashboardReader(
-        TRIALISTS_FILE
-    )
-
-    trialists = (
-        trialists_reader
-        ._read_trialists_sheet()
-    )
-
-    international_reader = ExcelDashboardReader(
-        INTERNATIONAL_FILE
-    )
-
-    international = (
-        international_reader
-        ._read_international_workbook()
-    )
-
-
-    # -----------------------------------------------------
-    # COMBINE ALL WORKBOOKS
-    # -----------------------------------------------------
+    customer_dashboard = ExcelDashboardReader(ACTIVE_CUSTOMER_FILE).read_dashboard()
+    active_subs = ExcelDashboardReader(ACTIVE_SUBS_FILE).read_active_subscriptions()
+    trialists = ExcelDashboardReader(TRIALISTS_FILE).read_trialists()
+    international = ExcelDashboardReader(INTERNATIONAL_FILE).read_international()
 
     return {
         "success": True,
-
         "source_files": {
-            "active_customer":
-                ACTIVE_CUSTOMER_FILE.name,
-
-            "active_subs":
-                ACTIVE_SUBS_FILE.name,
-
-            "trialists":
-                TRIALISTS_FILE.name,
-
-            "international":
-                INTERNATIONAL_FILE.name,
+            "active_customer": ACTIVE_CUSTOMER_FILE.name,
+            "active_subs": ACTIVE_SUBS_FILE.name,
+            "trialists": TRIALISTS_FILE.name,
+            "international": INTERNATIONAL_FILE.name,
         },
-
         "dashboard": {
             **customer_dashboard,
-
-            "active_subs":
-                active_subs,
-
-            "trialists":
-                trialists,
-
-            "international":
-                international,
+            "active_subs": active_subs,
+            "trialists": trialists,
+            "international": international,
         },
     }
 

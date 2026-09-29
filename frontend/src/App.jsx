@@ -40,8 +40,6 @@ import {
 
 import "./index.css";
 
-const API_URL = DASHBOARD_API_URL;
-
 const formatNumber = (value) =>
   Number(value ?? 0).toLocaleString("en-NZ");
 
@@ -95,7 +93,7 @@ function App() {
 
       setError("");
 
-      const response = await fetch(API_URL);
+      const response = await fetch(DASHBOARD_API_URL);
 
       if (!response.ok) {
         throw new Error(`Backend returned ${response.status}`);
@@ -103,15 +101,12 @@ function App() {
 
       const result = await response.json();
 
-      console.log("Dashboard API:", result);
-
       if (!result.success || !result.dashboard) {
         throw new Error("Invalid dashboard response");
       }
 
       setDashboard(result.dashboard);
     } catch (err) {
-      console.error("Dashboard error:", err);
       setError(err.message || "Unable to load dashboard");
     } finally {
       setLoading(false);
@@ -120,19 +115,12 @@ function App() {
   }
 
   useEffect(() => {
-    loadDashboard();
+    // Loading on mount is the intended external synchronization for this effect.
+    // oxlint-disable-next-line react/set-state-in-effect
+    void loadDashboard();
   }, []);
 
-  /*
-   * =========================================================
-   * DASHBOARD DATA
-   *
-   * IMPORTANT:
-   * Everything below is calculated BEFORE any conditional
-   * return. This keeps React Hook order consistent.
-   * =========================================================
-   */
-
+  // Convert optional API sections into predictable arrays before rendering charts.
   const summary = dashboard?.summary || {};
 
   const total = summary.total_subscriptions || {};
@@ -143,13 +131,6 @@ function App() {
   const activeDetails = Array.isArray(dashboard?.active_details)
     ? dashboard.active_details
     : [];
-
-  /*
-   * =========================================================
-   * ACTIVE SUBSCRIPTIONS PAGE 2 DATA
-   * =========================================================
-   */
-
   const activeSubs = Array.isArray(dashboard?.active_subs)
     ? dashboard.active_subs
     : Array.isArray(dashboard?.active_subs?.data)
@@ -160,26 +141,12 @@ function App() {
     activeSubs.length > 0
       ? activeSubs[activeSubs.length - 1]
       : null;
-
-  /*
-   * ---------------------------------------------------------
-   * ACTIVE SUBS CHART DATA
-   * ---------------------------------------------------------
-   */
-
   const activeSubsChartData = activeSubs.map((item) => ({
     label: item.label || `${item.month || ""} ${item.year || ""}`,
     active: Number(item.active || 0),
     nonRenewing: Number(item.non_renewing || 0),
     balance: Number(item.balance || 0),
   }));
-
-  /*
-   * =========================================================
-   * TRIALISTS PAGE 3 DATA
-   * =========================================================
-   */
-
   const trialists = dashboard?.trialists || {};
 
   const trialistDetails = Array.isArray(trialists.details)
@@ -255,13 +222,6 @@ function App() {
 
     return monthMatches && sourceMatches;
   });
-
-  const selectedTrialistSource =
-    trialistSourceFilter === "all"
-      ? null
-      : trialistSourceChartData.find(
-          (item) => item.name === trialistSourceFilter
-        ) || null;
 
   const filteredTrialistMonthlyData =
     trialistMonthFilter === "all"
@@ -372,13 +332,6 @@ function App() {
 
   const latestTrialistDisplay =
     selectedTrialistMonth || latestTrialists || {};
-
-  /*
-   * =========================================================
-   * INTERNATIONAL PAGE DATA
-   * =========================================================
-   */
-
   const international = dashboard?.international || {};
   const intlIncome = international.income || {};
   const intlCountries = international.countries || {};
@@ -489,13 +442,6 @@ function App() {
 
   const topIntlIncomeSource = intlIncomeSources[0] || null;
   const topIntlCountry = intlCountryTotals[0] || null;
-
-  /*
-   * ---------------------------------------------------------
-   * BASIC DASHBOARD DATA
-   * ---------------------------------------------------------
-   */
-
   const billingData = [
     {
       name: "Monthly",
@@ -545,13 +491,6 @@ function App() {
       overseas: Number(total.os_annual || 0),
     },
   ];
-
-  /*
-   * ---------------------------------------------------------
-   * ACTIVE CUSTOMER ANALYSIS
-   * ---------------------------------------------------------
-   */
-
   const findCustomer = (name, status) => {
     return activeDetails.find(
       (item) =>
@@ -565,12 +504,6 @@ function App() {
   const getCustomerValue = (name, status, field) => {
     return Number(findCustomer(name, status)?.[field] || 0);
   };
-
-  /*
-   * Chart 1
-   * Total # Active Sub Customers per Source
-   */
-
   const sourceCustomerData = [
     {
       name: "iOS",
@@ -619,12 +552,6 @@ function App() {
       ),
     },
   ];
-
-  /*
-   * Chart 2
-   * Total # Active Sub Customers per Source NZ & OS
-   */
-
   const sourceNzOsData = [
     {
       name: "iOS",
@@ -778,12 +705,6 @@ function App() {
       ),
     },
   ];
-
-  /*
-   * Chart 3
-   * Monthly vs Annual
-   */
-
   const sourceBillingData = [
     {
       name: "iOS",
@@ -877,12 +798,6 @@ function App() {
       ),
     },
   ];
-
-  /*
-   * Chart 4
-   * Old vs New
-   */
-
   const oldNewData = [
     {
       name: "CB OLD",
@@ -908,13 +823,6 @@ function App() {
       annual: Number(invoices.annual || 0),
     },
   ];
-
-  /*
-   * =========================================================
-   * LOADING SCREEN
-   * =========================================================
-   */
-
   if (loading) {
     return (
       <div className="screen">
@@ -930,13 +838,6 @@ function App() {
       </div>
     );
   }
-
-  /*
-   * =========================================================
-   * ERROR SCREEN
-   * =========================================================
-   */
-
   if (error) {
     return (
       <div className="screen">
@@ -957,13 +858,6 @@ function App() {
       </div>
     );
   }
-
-  /*
-   * =========================================================
-   * MAIN DASHBOARD
-   * =========================================================
-   */
-
   return (
     <div className="app-layout">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
@@ -978,17 +872,8 @@ function App() {
 
         <div className="content">
         <PageHeader activeTab={activeTab} />
-
-
-        {/* =====================================================
-            OVERVIEW
-        ===================================================== */}
-
         {activeTab === "overview" && (
           <>
-
-            {/* KPI CARDS */}
-
             <section className="kpi-grid">
 
               <div className="kpi-card primary">
@@ -1007,7 +892,6 @@ function App() {
 
               </div>
 
-
               <div className="kpi-card accent-teal">
 
                 <span>
@@ -1024,7 +908,6 @@ function App() {
 
               </div>
 
-
               <div className="kpi-card accent-violet">
 
                 <span>
@@ -1040,7 +923,6 @@ function App() {
                 </small>
 
               </div>
-
 
               <div className="kpi-card accent-amber">
 
@@ -1059,10 +941,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* BILLING STRUCTURE */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -1076,7 +954,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="two-column">
 
@@ -1125,7 +1002,6 @@ function App() {
 
                 </div>
 
-
                 <div className="stats-panel">
 
                   <div className="metric">
@@ -1140,7 +1016,6 @@ function App() {
 
                   </div>
 
-
                   <div className="metric">
 
                     <span>
@@ -1152,7 +1027,6 @@ function App() {
                     </strong>
 
                   </div>
-
 
                   <div className="metric highlight">
 
@@ -1171,10 +1045,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* SUBSCRIPTION SOURCES */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -1188,7 +1058,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="two-column">
 
@@ -1229,14 +1098,12 @@ function App() {
 
                       </Pie>
 
-
                       <Tooltip
                         {...TOOLTIP_PROPS}
                         formatter={(value) =>
                           formatNumber(value)
                         }
                       />
-
 
                       <Legend {...LEGEND_PROPS} />
 
@@ -1245,7 +1112,6 @@ function App() {
                   </ResponsiveContainer>
 
                 </div>
-
 
                 <div className="source-list">
 
@@ -1269,7 +1135,6 @@ function App() {
 
                   </div>
 
-
                   <div className="source-item">
 
                     <div>
@@ -1289,7 +1154,6 @@ function App() {
                     </strong>
 
                   </div>
-
 
                   <div className="source-item">
 
@@ -1316,10 +1180,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* GEOGRAPHIC DISTRIBUTION */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -1333,7 +1193,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel chart-panel">
 
@@ -1386,10 +1245,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* CHARGEBEE */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -1403,7 +1258,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel chart-panel">
 
@@ -1450,17 +1304,8 @@ function App() {
 
           </>
         )}
-
-
-        {/* =====================================================
-            ACTIVE SUBSCRIPTIONS — PAGE 2
-        ===================================================== */}
-
         {activeTab === "active-subs" && (
           <>
-
-            {/* ACTIVE SUBS KPI CARDS */}
-
             <section className="kpi-grid">
 
               <div className="kpi-card primary">
@@ -1481,7 +1326,6 @@ function App() {
 
               </div>
 
-
               <div className="kpi-card">
 
                 <span>
@@ -1499,7 +1343,6 @@ function App() {
                 </small>
 
               </div>
-
 
               <div className="kpi-card">
 
@@ -1519,7 +1362,6 @@ function App() {
 
               </div>
 
-
               <div className="kpi-card">
 
                 <span>
@@ -1537,12 +1379,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* =================================================
-                ACTIVE SUBSCRIPTIONS CHART
-            ================================================= */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -1556,7 +1392,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel chart-panel large-chart">
 
@@ -1603,12 +1438,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* =================================================
-                NON-RENEWING CHART
-            ================================================= */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -1622,7 +1451,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel chart-panel large-chart">
 
@@ -1669,12 +1497,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* =================================================
-                BALANCE CHART
-            ================================================= */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -1688,7 +1510,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel chart-panel large-chart">
 
@@ -1735,12 +1556,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* =================================================
-                ACTIVE SUBS TABLE
-            ================================================= */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -1755,7 +1570,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel table-panel">
 
@@ -1774,7 +1588,6 @@ function App() {
                       </tr>
 
                     </thead>
-
 
                     <tbody>
 
@@ -1833,17 +1646,8 @@ function App() {
 
           </>
         )}
-
-
-        {/* =====================================================
-            TRIALISTS — PAGE 3
-        ===================================================== */}
-
         {activeTab === "trialists" && (
           <>
-
-            {/* INTERACTIVE FILTER BAR */}
-
             <section className="section">
               <div className="panel filter-panel">
                 <div className="filter-bar">
@@ -1895,10 +1699,6 @@ function App() {
                 </div>
               </div>
             </section>
-
-
-            {/* KPI CARDS */}
-
             <section className="kpi-grid">
 
               <div className="kpi-card primary">
@@ -1949,10 +1749,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* KAREN CHART 1: TOTAL VS ACTIVE */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Total Trialists vs Active Trialists</h3>
@@ -2004,10 +1800,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </section>
-
-
-            {/* BUSINESS TREND: TOTAL AND CONVERTED */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Trialist Acquisition & Conversion Trend</h3>
@@ -2063,10 +1855,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </section>
-
-
-            {/* KAREN CHART: PERCENT TRIALISTS */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Trialist Outcome %</h3>
@@ -2127,10 +1915,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </section>
-
-
-            {/* KAREN CHARTS: THIS MONTH + NEXT 7 DAYS */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Conversion Timing</h3>
@@ -2216,10 +2000,6 @@ function App() {
 
               </div>
             </section>
-
-
-            {/* KAREN CHART: NO RESPONSES + MIX */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Conversion Leakage</h3>
@@ -2295,10 +2075,6 @@ function App() {
 
               </div>
             </section>
-
-
-            {/* KAREN CHART: ACTIVE TRIALISTS BY SOURCE */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Active Trialists by Source</h3>
@@ -2361,10 +2137,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </section>
-
-
-            {/* SOURCE PERFORMANCE / CLICKABLE */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Total Source Trialists</h3>
@@ -2454,10 +2226,6 @@ function App() {
 
               </div>
             </section>
-
-
-            {/* BUSINESS CHART: SOURCE CONVERSION EFFICIENCY */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Source Conversion Efficiency</h3>
@@ -2512,10 +2280,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </section>
-
-
-            {/* BUSINESS CHART: MONTH OVER MONTH */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Month-over-Month Movement</h3>
@@ -2569,10 +2333,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </section>
-
-
-            {/* FILTERED DRILL-DOWN KPI */}
-
             {(trialistMonthFilter !== "all" ||
               trialistSourceFilter !== "all") && (
               <section className="section">
@@ -2616,10 +2376,6 @@ function App() {
                 </div>
               </section>
             )}
-
-
-            {/* MONTHLY SUMMARY TABLE */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Monthly Trialist Summary</h3>
@@ -2672,10 +2428,6 @@ function App() {
                 </div>
               </div>
             </section>
-
-
-            {/* SOURCE-LEVEL DRILL-DOWN TABLE */}
-
             <section className="section">
               <div className="section-heading">
                 <h3>Trialist Source Details</h3>
@@ -2730,17 +2482,8 @@ function App() {
 
           </>
         )}
-
-
-        {/* =====================================================
-            CUSTOMER ANALYSIS
-        ===================================================== */}
-
         {activeTab === "analysis" && (
           <>
-
-            {/* ANALYSIS KPI */}
-
             <section className="analysis-summary-grid">
 
               <div className="analysis-summary-card">
@@ -2759,7 +2502,6 @@ function App() {
 
               </div>
 
-
               <div className="analysis-summary-card">
 
                 <span>
@@ -2776,7 +2518,6 @@ function App() {
 
               </div>
 
-
               <div className="analysis-summary-card">
 
                 <span>
@@ -2792,7 +2533,6 @@ function App() {
                 </small>
 
               </div>
-
 
               <div className="analysis-summary-card">
 
@@ -2811,10 +2551,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* CHART 1 */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -2830,7 +2566,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel chart-panel large-chart">
 
@@ -2877,10 +2612,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* CHART 2 */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -2895,7 +2626,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel chart-panel large-chart">
 
@@ -2965,10 +2695,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* CHART 3 */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -2983,7 +2709,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel chart-panel large-chart">
 
@@ -3039,10 +2764,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* CHART 4 */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -3057,7 +2778,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel chart-panel">
 
@@ -3113,10 +2833,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* ANALYSIS TABLE */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -3131,7 +2847,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel table-panel">
 
@@ -3153,7 +2868,6 @@ function App() {
                       </tr>
 
                     </thead>
-
 
                     <tbody>
 
@@ -3238,17 +2952,8 @@ function App() {
 
           </>
         )}
-
-
-        {/* =====================================================
-            DETAILED DATA
-        ===================================================== */}
-
         {activeTab === "details" && (
           <>
-
-            {/* ACTIVE DETAILS */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -3263,7 +2968,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel table-panel">
 
@@ -3286,7 +2990,6 @@ function App() {
                       </tr>
 
                     </thead>
-
 
                     <tbody>
 
@@ -3365,10 +3068,6 @@ function App() {
               </div>
 
             </section>
-
-
-            {/* FINANCIAL SUMMARY */}
-
             <section className="section">
 
               <div className="section-heading">
@@ -3382,7 +3081,6 @@ function App() {
                 </p>
 
               </div>
-
 
               <div className="panel table-panel">
 
@@ -3404,7 +3102,6 @@ function App() {
                       </tr>
 
                     </thead>
-
 
                     <tbody>
 
@@ -3458,7 +3155,6 @@ function App() {
 
                       </tr>
 
-
                       <tr>
 
                         <td>
@@ -3508,7 +3204,6 @@ function App() {
                         </td>
 
                       </tr>
-
 
                       <tr className="subtotal">
 
@@ -3560,7 +3255,6 @@ function App() {
 
                       </tr>
 
-
                       <tr>
 
                         <td>
@@ -3611,7 +3305,6 @@ function App() {
 
                       </tr>
 
-
                       <tr>
 
                         <td>
@@ -3661,7 +3354,6 @@ function App() {
                         </td>
 
                       </tr>
-
 
                       <tr className="grand-total">
 
@@ -3725,12 +3417,6 @@ function App() {
 
           </>
         )}
-
-
-        {/* =====================================================
-            REVENUE — PLACEHOLDER
-        ===================================================== */}
-
         {activeTab === "revenue" && (
           <section className="section">
 
@@ -3768,12 +3454,6 @@ function App() {
 
           </section>
         )}
-
-
-        {/* =====================================================
-            MRR — PLACEHOLDER
-        ===================================================== */}
-
         {activeTab === "mrr" && (
           <section className="section">
 
@@ -3811,21 +3491,9 @@ function App() {
 
           </section>
         )}
-
-
-        {/* =====================================================
-            FINANCIAL FORECASTING
-        ===================================================== */}
-
         {activeTab === "forecasting" && (
           <ForecastingPage />
         )}
-
-
-        {/* =====================================================
-            INTERNATIONAL — FF INTERNATIONAL
-        ===================================================== */}
-
         {activeTab === "international" && (
           <>
 
@@ -3863,7 +3531,6 @@ function App() {
                 </div>
               </div>
             </section>
-
 
             <section className="kpi-grid">
 
@@ -3923,7 +3590,6 @@ function App() {
 
             </section>
 
-
             <section className="section">
               <div className="section-heading">
                 <h3>International Revenue Trend</h3>
@@ -3970,7 +3636,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </section>
-
 
             <section className="section">
               <div className="section-heading">
@@ -4024,7 +3689,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </section>
-
 
             <section className="section">
               <div className="section-heading">
@@ -4108,7 +3772,6 @@ function App() {
               </div>
             </section>
 
-
             <section className="section">
               <div className="section-heading">
                 <h3>Top Country Performance Trend</h3>
@@ -4159,7 +3822,6 @@ function App() {
               </div>
             </section>
 
-
             <section className="section">
               <div className="section-heading">
                 <h3>Month-on-Month Revenue Change</h3>
@@ -4205,7 +3867,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </section>
-
 
             <section className="section">
               <div className="section-heading">
@@ -4268,12 +3929,6 @@ function App() {
 
           </>
         )}
-
-
-        {/* =====================================================
-            FOOTER
-        ===================================================== */}
-
         <footer className="content-footer">
 
           <div>

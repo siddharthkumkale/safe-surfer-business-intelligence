@@ -1,7 +1,4 @@
-/* =========================================================
-   SAFE SURFER — FINANCIAL DASHBOARD
-   FINAL UI
-   ========================================================= */
+
 
 :root {
   font-family:
@@ -57,10 +54,6 @@
   --shadow-panel: 0 4px 24px rgba(0, 0, 0, 0.18);
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
-
-/* =========================================================
-   CRITICAL VIEWPORT FIX
-   ========================================================= */
 
 * {
   box-sizing: border-box;
@@ -123,10 +116,6 @@ button {
   cursor: pointer;
 }
 
-/* =========================================================
-   APPLICATION SHELL
-   ========================================================= */
-
 .app-layout {
   display: flex;
   width: 100%;
@@ -138,10 +127,6 @@ button {
 
   background: var(--bg);
 }
-
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
 
 .sidebar {
   position: fixed;
@@ -173,10 +158,6 @@ button {
   box-shadow:
     8px 0 30px rgba(0, 0, 0, 0.13);
 }
-
-/* =========================================================
-   SIDEBAR BRAND
-   ========================================================= */
 
 .sidebar-logo {
   display: flex;
@@ -232,10 +213,6 @@ button {
 
   font-size: 10px;
 }
-
-/* =========================================================
-   SIDEBAR NAVIGATION
-   ========================================================= */
 
 .sidebar-section-title {
   padding: 14px 11px 8px;
@@ -382,11 +359,6 @@ button {
     0 0 0 4px rgba(34, 197, 94, 0.08);
 }
 
-/* =========================================================
-   MAIN CONTENT
-   THIS IS THE IMPORTANT WIDTH FIX
-   ========================================================= */
-
 .main-content {
   flex: 1;
   width: calc(100% - var(--sidebar-width));
@@ -414,10 +386,6 @@ button {
       var(--bg) 30%
     );
 }
-
-/* =========================================================
-   HEADER
-   ========================================================= */
 
 .header {
   position: sticky;
@@ -499,10 +467,6 @@ button {
   font-size: 11px;
 }
 
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-
 .refresh-btn,
 .primary-button {
   display: inline-flex;
@@ -554,16 +518,9 @@ button {
   background: #0284c7;
 }
 
-/* Old navigation is no longer required */
-
 .tabs {
   display: none;
 }
-
-/* =========================================================
-   DASHBOARD CONTENT
-   FULL WIDTH BUT WITH PROFESSIONAL PADDING
-   ========================================================= */
 
 .content {
   width: 100%;
@@ -573,10 +530,6 @@ button {
 
   padding: 28px 36px 48px;
 }
-
-/* =========================================================
-   PAGE HEADER
-   ========================================================= */
 
 .page-title {
   width: 100%;
@@ -648,10 +601,6 @@ button {
   box-shadow:
     0 0 0 4px rgba(34, 197, 94, 0.07);
 }
-
-/* =========================================================
-   KPI GRID
-   ========================================================= */
 
 .kpi-grid {
   width: 100%;
@@ -777,10 +726,6 @@ button {
   font-size: 10px;
 }
 
-/* =========================================================
-   ANALYSIS SUMMARY
-   ========================================================= */
-
 .analysis-summary-grid {
   width: 100%;
 
@@ -793,10 +738,6 @@ button {
 
   margin-bottom: 34px;
 }
-
-/* =========================================================
-   SECTIONS
-   ========================================================= */
 
 .section {
   width: 100%;
@@ -831,10 +772,6 @@ button {
   font-size: 12px;
   font-weight: 400;
 }
-
-/* =========================================================
-   PANELS
-   ========================================================= */
 
 .panel,
 .stats-panel,
@@ -891,10 +828,6 @@ button {
   border-bottom: 1px solid rgba(51, 65, 85, 0.45);
 }
 
-/* =========================================================
-   TWO-COLUMN CHART LAYOUT
-   ========================================================= */
-
 .two-column {
   width: 100%;
 
@@ -906,10 +839,6 @@ button {
 
   gap: 16px;
 }
-
-/* =========================================================
-   METRIC PANEL
-   ========================================================= */
 
 .stats-panel {
   display: flex;
@@ -965,10 +894,6 @@ button {
   color: var(--blue);
 }
 
-/* =========================================================
-   SOURCE LIST
-   ========================================================= */
-
 .source-list {
   display: flex;
   flex-direction: column;
@@ -1019,10 +944,6 @@ button {
 
   font-size: 17px;
 }
-
-/* =========================================================
-   TABLES
-   ========================================================= */
 
 .table-panel {
   width: 100%;
@@ -1160,10 +1081,6 @@ tr.grand-total td:first-child {
   color: var(--blue);
 }
 
-/* =========================================================
-   LOADING / ERROR
-   ========================================================= */
-
 .screen {
   width: 100%;
   min-height: 100vh;
@@ -1266,10 +1183,6 @@ tr.grand-total td:first-child {
   }
 }
 
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
 footer,
 .content-footer {
   width: 100%;
@@ -1302,10 +1215,6 @@ footer strong {
   color: #94a3b8;
 }
 
-/* =========================================================
-   RESPONSIVE — LAPTOP
-   ========================================================= */
-
 @media (max-width: 1200px) {
   :root {
     --sidebar-width: 225px;
@@ -1334,10 +1243,6 @@ footer strong {
     grid-template-columns: 1fr;
   }
 }
-
-/* =========================================================
-   RESPONSIVE — TABLET
-   ========================================================= */
 
 @media (max-width: 800px) {
   :root {
@@ -1432,10 +1337,6 @@ footer strong {
   }
 }
 
-/* =========================================================
-   RESPONSIVE — MOBILE
-   ========================================================= */
-
 @media (max-width: 480px) {
   :root {
     --sidebar-width: 58px;
@@ -1494,10 +1395,6 @@ footer strong {
     font-size: 20px;
   }
 }
-
-/* =========================================================
-   FILTER BAR
-   ========================================================= */
 
 .filter-panel {
   padding: 18px 22px !important;
@@ -1566,10 +1463,6 @@ footer strong {
   font-weight: 500;
 }
 
-/* =========================================================
-   EMPTY STATE
-   ========================================================= */
-
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -1625,10 +1518,6 @@ footer strong {
   font-size: 13px;
   line-height: 1.6;
 }
-
-/* =========================================================
-   RECHARTS — GLOBAL CHART STYLING
-   ========================================================= */
 
 .recharts-cartesian-grid-horizontal line,
 .recharts-cartesian-grid-vertical line {
@@ -1696,10 +1585,6 @@ footer strong {
   font-weight: 500 !important;
 }
 
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
-
 .table-scroll::-webkit-scrollbar,
 .sidebar::-webkit-scrollbar {
   height: 6px;
@@ -1723,20 +1608,12 @@ footer strong {
   background: var(--muted);
 }
 
-/* =========================================================
-   FOCUS & ACCESSIBILITY
-   ========================================================= */
-
 .nav-item:focus-visible,
 .refresh-btn:focus-visible,
 .primary-button:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
-
-/* =========================================================
-   PANEL WITH HEADING INSIDE
-   ========================================================= */
 
 .panel > .section-heading {
   padding: 22px 24px 0;
@@ -1745,10 +1622,6 @@ footer strong {
 .panel > .empty-state {
   padding: 40px 24px 48px;
 }
-
-/* =========================================================
-   2026 PRODUCT REFRESH — CALM, PROFESSIONAL LIGHT THEME
-   ========================================================= */
 
 :root {
   --sidebar-width: 264px;
@@ -2039,13 +1912,11 @@ summary:focus-visible {
   font-weight: 630;
 }
 
-.action-menu,
-.profile-menu {
+.action-menu {
   position: relative;
 }
 
-.action-menu summary,
-.profile-menu summary {
+.action-menu summary {
   height: 40px;
   display: flex;
   align-items: center;
@@ -2061,13 +1932,11 @@ summary:focus-visible {
   cursor: pointer;
 }
 
-.action-menu summary::-webkit-details-marker,
-.profile-menu summary::-webkit-details-marker {
+.action-menu summary::-webkit-details-marker {
   display: none;
 }
 
-.action-menu summary svg,
-.profile-menu summary > svg {
+.action-menu summary svg {
   width: 15px;
   height: 15px;
   fill: none;
@@ -2075,8 +1944,7 @@ summary:focus-visible {
   stroke-width: 1.7;
 }
 
-.action-menu-popover,
-.profile-menu-popover {
+.action-menu-popover {
   position: absolute;
   top: calc(100% + 9px);
   right: 0;
@@ -2089,8 +1957,7 @@ summary:focus-visible {
   box-shadow: 0 16px 45px rgba(20, 42, 59, 0.14);
 }
 
-.action-menu-popover button,
-.profile-menu-popover button {
+.action-menu-popover button {
   width: 100%;
   padding: 10px 11px;
   border: 0;
@@ -2101,8 +1968,7 @@ summary:focus-visible {
   text-align: left;
 }
 
-.action-menu-popover button:hover,
-.profile-menu-popover button:hover {
+.action-menu-popover button:hover {
   background: #f1f6f9;
   color: var(--text);
 }
@@ -2121,61 +1987,6 @@ summary:focus-visible {
 .refresh-btn:hover {
   background: linear-gradient(135deg, #11799b, #0b5f88);
   transform: translateY(-1px);
-}
-
-.profile-menu summary {
-  padding: 0 9px 0 5px;
-}
-
-.profile-avatar {
-  width: 31px;
-  height: 31px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  background: #e2f3f2;
-  color: #147b83;
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.profile-copy strong,
-.profile-copy small {
-  display: block;
-  line-height: 1.15;
-}
-
-.profile-copy strong {
-  color: var(--text);
-  font-size: 11px;
-}
-
-.profile-copy small {
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: 9px;
-}
-
-.profile-menu-popover > div {
-  padding: 8px 10px 10px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
-}
-
-.profile-menu-popover > div strong,
-.profile-menu-popover > div span {
-  display: block;
-}
-
-.profile-menu-popover > div strong {
-  color: var(--text);
-  font-size: 12px;
-}
-
-.profile-menu-popover > div span {
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: 10px;
 }
 
 .content {
@@ -2481,7 +2292,6 @@ footer strong {
 @media (max-width: 1180px) {
   :root { --sidebar-width: 226px; }
   .quick-view { min-width: 205px; }
-  .profile-copy { display: none; }
   .content { padding-inline: 24px; }
   .header { padding-inline: 24px; }
 }
@@ -2517,8 +2327,7 @@ footer strong {
   .brand p { display: none; }
   .brand h1 { font-size: 15px; }
   .quick-view,
-  .action-menu,
-  .profile-menu { display: none; }
+  .action-menu { display: none; }
   .content { padding: 22px 14px 38px; }
   .page-title { align-items: flex-start; gap: 14px; }
   .page-title h2 { font-size: 23px; }
@@ -2538,10 +2347,6 @@ footer strong {
   .kpi-card,
   .analysis-summary-card { box-shadow: none; break-inside: avoid; }
 }
-
-/* =========================================================
-   FINANCIAL FORECASTING
-   ========================================================= */
 
 .forecast-page {
   display: block;

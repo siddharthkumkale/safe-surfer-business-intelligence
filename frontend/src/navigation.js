@@ -49,7 +49,7 @@ export const PAGE_META = {
   },
   forecasting: {
     title: "Financial Forecasting",
-    subtitle: "Forward-looking analysis generated from historical Safe Surfer business data",
+    subtitle: "Three- and six-month outlooks based on historical data",
   },
   international: {
     title: "International",

@@ -3,7 +3,7 @@ import { PAGE_META } from "../navigation";
 export default function PageHeader({ activeTab }) {
   const meta = PAGE_META[activeTab] ?? {
     title: "Dashboard",
-    subtitle: "Financial dashboard",
+    subtitle: "Business performance overview",
   };
 
   return (
@@ -15,7 +15,7 @@ export default function PageHeader({ activeTab }) {
       </div>
       <div className="data-status">
         <span />
-        Live Excel data
+        Source data loaded
       </div>
     </div>
   );

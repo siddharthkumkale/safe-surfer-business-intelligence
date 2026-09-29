@@ -3,7 +3,7 @@ export default function AppHeader({ refreshing, onRefresh, activeTab, onTabChang
     <header className="header">
       <div className="brand">
         <div>
-          <p>Safe Surfer / Financial reporting</p>
+          <p>Safe Surfer / Business intelligence</p>
           <h1>Performance dashboard</h1>
         </div>
       </div>
@@ -42,17 +42,6 @@ export default function AppHeader({ refreshing, onRefresh, activeTab, onTabChang
           <span className="refresh-btn-label">{refreshing ? "Refreshing…" : "Refresh"}</span>
         </button>
 
-        <details className="profile-menu">
-          <summary aria-label="Open profile menu">
-            <span className="profile-avatar">SS</span>
-            <span className="profile-copy"><strong>Safe Surfer</strong><small>Finance team</small></span>
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
-          </summary>
-          <div className="profile-menu-popover">
-            <div><strong>Safe Surfer</strong><span>Financial workspace</span></div>
-            <button type="button" onClick={() => onTabChange("details")}>View detailed data</button>
-          </div>
-        </details>
       </div>
     </header>
   );
